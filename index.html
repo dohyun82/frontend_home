@@ -399,7 +399,10 @@
               공정한 추첨 도구입니다. 사다리 타기를 통해 선정 과정의 투명성을
               확보할 수 있습니다.
             </p>
-
+            <p class="font-bold text-red-600 text-lg mb-6">
+              이 도구는 팀원들 간의 협의가 되지 않았을 때 최후의 수단으로
+              사용합니다.
+            </p>
             <div class="card">
               <h3>참가자 설정</h3>
               <div class="mb-4">
@@ -410,7 +413,7 @@
                   type="text"
                   id="participants"
                   class="w-full p-2 border border-stone-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                  placeholder="김철수, 이영희, 박민수, 최수진"
+                  placeholder="김도현, 이상준, 김혜영, 배정수, 한성완, 이다훈, 강규석"
                 />
               </div>
               <div class="mb-4">
@@ -422,14 +425,15 @@
                   id="selectCount"
                   class="w-32 p-2 border border-stone-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                   min="1"
-                  value="2"
+                  max="7"
+                  value="4"
                 />
               </div>
               <button
                 id="generateLadder"
                 class="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
               >
-                사다리 생성
+                8시 출근자 선정
               </button>
               <button
                 id="resetLadder"
@@ -952,64 +956,73 @@
           const colSpacing = width / (participantCount + 1);
           const rowSpacing = (height - 100) / (ladderHeight + 1);
 
+          // 참가자별 색상 팔레트
+          const colors = [
+            "#ef4444", // 빨강
+            "#3b82f6", // 파랑
+            "#10b981", // 초록
+            "#f59e42", // 주황
+            "#a21caf", // 보라
+            "#eab308", // 노랑
+            "#0ea5e9", // 하늘
+            "#6366f1", // 인디고
+            "#f43f5e", // 핑크
+          ];
+
           this.paths = [];
 
-          // 각 참가자의 경로 추적
           for (let startCol = 0; startCol < participantCount; startCol++) {
             let currentCol = startCol;
-            const path = [{ x: colSpacing * (startCol + 1), y: 40 }];
+            let path = [{ x: colSpacing * (currentCol + 1), y: 40 }];
 
             for (let row = 0; row < ladderHeight; row++) {
               const y = 40 + rowSpacing * (row + 1);
-
-              // 왼쪽 가로줄 확인
-              if (currentCol > 0 && this.ladderData[row][currentCol - 1]) {
-                currentCol--;
-                path.push({ x: colSpacing * (currentCol + 1), y: y });
-              }
-              // 오른쪽 가로줄 확인
-              else if (
+              path.push({ x: colSpacing * (currentCol + 1), y });
+              if (
                 currentCol < participantCount - 1 &&
                 this.ladderData[row][currentCol]
               ) {
+                path.push({ x: colSpacing * (currentCol + 2), y });
                 currentCol++;
-                path.push({ x: colSpacing * (currentCol + 1), y: y });
-              } else {
-                path.push({ x: colSpacing * (currentCol + 1), y: y });
+              } else if (
+                currentCol > 0 &&
+                this.ladderData[row][currentCol - 1]
+              ) {
+                path.push({ x: colSpacing * currentCol, y });
+                currentCol--;
               }
             }
-
             path.push({ x: colSpacing * (currentCol + 1), y: height - 60 });
             this.paths.push({
               path,
               result: this.results[currentCol],
               participant: this.participants[startCol],
+              color: colors[startCol % colors.length],
             });
-
-            // 경로 애니메이션으로 그리기
-            this.animatePath(path, startCol * 200); // 200ms 간격으로 시작
+            this.animatePath(
+              path,
+              startCol * 200,
+              colors[startCol % colors.length]
+            );
           }
         }
 
-        animatePath(path, delay) {
+        animatePath(path, delay, color) {
           setTimeout(() => {
             const svg = document.getElementById("ladderSvg");
             const pathElement = document.createElementNS(
               "http://www.w3.org/2000/svg",
               "path"
             );
-
             let pathString = `M ${path[0].x} ${path[0].y}`;
             for (let i = 1; i < path.length; i++) {
               pathString += ` L ${path[i].x} ${path[i].y}`;
             }
-
             pathElement.setAttribute("d", pathString);
-            pathElement.setAttribute("stroke", "#dc2626");
-            pathElement.setAttribute("stroke-width", "3");
+            pathElement.setAttribute("stroke", color);
+            pathElement.setAttribute("stroke-width", "5");
             pathElement.setAttribute("fill", "none");
-            pathElement.setAttribute("stroke-dasharray", "5,5");
-
+            pathElement.setAttribute("opacity", "0.85");
             svg.appendChild(pathElement);
           }, delay);
         }
@@ -1046,6 +1059,8 @@
           document.getElementById("ladderSvg").innerHTML = "";
           this.paths = [];
           this.selectedResults = [];
+          document.getElementById("participants").value = "";
+          document.getElementById("selectCount").value = 4;
         }
       }
 
