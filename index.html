@@ -426,7 +426,7 @@
                   class="w-32 p-2 border border-stone-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                   min="1"
                   max="7"
-                  value="4"
+                  value="5"
                 />
               </div>
               <button
@@ -760,7 +760,7 @@
       class LadderGame {
         constructor() {
           this.participants = [];
-          this.selectCount = 2;
+          this.selectCount = 5;
           this.ladderData = [];
           this.paths = [];
           this.selectedResults = [];
@@ -1060,7 +1060,7 @@
           this.paths = [];
           this.selectedResults = [];
           document.getElementById("participants").value = "";
-          document.getElementById("selectCount").value = 4;
+          document.getElementById("selectCount").value = 5;
         }
       }
 
