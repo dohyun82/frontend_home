@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>TEST 01 · 식권대장 OneLink 딥링크</title>
+  <link rel="stylesheet" href="../../assets/base.css" />
+</head>
+<body>
+  <header class="page-head">
+    <div class="inner">
+      <a class="back-link" href="../../">← 테스트 목록</a>
+      <h1>TEST 01 · 식권대장 OneLink 딥링크</h1>
+      <p>AppsFlyer OneLink(<code>vendys.onelink.me/szhg</code>) → 식권대장 앱 OAuth 화면 진입</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- 1. 기대 동작 -->
+    <section class="card">
+      <h2><span class="num">01</span> 기대 동작</h2>
+      <table class="kv">
+        <tr>
+          <th>앱 설치됨</th>
+          <td>식권대장 앱 실행 → <code>screen/main/oauth</code> 진입</td>
+        </tr>
+        <tr>
+          <th>앱 미설치</th>
+          <td>스토어(Play 스토어 / App Store)로 이동</td>
+        </tr>
+        <tr>
+          <th>테스트 브라우저</th>
+          <td>삼성 인터넷 (Samsung Internet)</td>
+        </tr>
+      </table>
+      <div class="note">
+        <strong>딥링크는 사용자 탭(제스처)으로 실행해야 합니다.</strong>
+        자동 리다이렉트는 브라우저가 차단할 수 있으므로 이 페이지는 자동 이동을 하지 않습니다.
+      </div>
+    </section>
+
+    <!-- 2. 실행 -->
+    <section class="card">
+      <h2><span class="num">02</span> 딥링크 실행</h2>
+      <p class="desc">아래 버튼을 눌러 실행합니다. 로그를 계속 보려면 <em>새 탭</em> 방식을 쓰세요.</p>
+
+      <a class="btn primary" id="btnMain" href="#" rel="noopener">식권대장 앱 열기 (같은 탭)</a>
+
+      <div style="margin-top:14px">
+        <div class="btn-row">
+          <button class="btn sm" data-run="newtab">새 탭으로 열기</button>
+          <button class="btn sm" data-run="location">location.href</button>
+        </div>
+        <div class="btn-row" style="margin-top:8px">
+          <button class="btn sm" data-run="assign">location.assign</button>
+          <button class="btn sm" data-run="replace">location.replace</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn sm" id="btnCopy">URL 복사</button>
+        <button class="btn sm" id="btnCopyDecoded">디코딩 결과 복사</button>
+      </div>
+
+      <div class="note" style="border-left-color:var(--accent);background:rgba(79,140,255,.07)">
+        <strong>실행 대상:</strong> <span id="targetLabel" class="badge dim">원본 URL</span>
+        — 아래 03에서 파라미터를 수정하면 자동으로 <span class="badge dim">재생성 URL</span>로 전환됩니다.
+      </div>
+    </section>
+
+    <!-- 3. 파라미터 -->
+    <section class="card">
+      <h2><span class="num">03</span> 파라미터 편집</h2>
+      <p class="desc">값을 바꾸면 URL이 즉시 다시 만들어집니다.</p>
+
+      <div class="field">
+        <label for="f_requestKey">requestKey</label>
+        <input id="f_requestKey" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_callbackUrl">callbackUrl</label>
+        <input id="f_callbackUrl" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_userId">userId</label>
+        <input id="f_userId" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_serviceId">serviceId</label>
+        <input id="f_serviceId" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_loginId">loginId</label>
+        <input id="f_loginId" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_scheme">app scheme (payload.url)</label>
+        <input id="f_scheme" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_schema">schema</label>
+        <input id="f_schema" type="text" autocomplete="off" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn sm" id="btnReset">원본값으로 초기화</button>
+        <button class="btn sm" id="btnApply">재생성 URL 사용</button>
+      </div>
+    </section>
+
+    <!-- 4. URL 분석 -->
+    <section class="card">
+      <h2><span class="num">04</span> URL 분석</h2>
+      <p class="desc">현재 실행 대상 URL을 계층별로 디코딩합니다.</p>
+
+      <table class="kv">
+        <tr><th>OneLink base</th><td id="a_base">-</td></tr>
+        <tr><th>media_source</th><td id="a_media">-</td></tr>
+        <tr><th>schema</th><td id="a_schema">-</td></tr>
+        <tr><th>payload.url</th><td id="a_appurl">-</td></tr>
+      </table>
+
+      <p class="desc" style="margin:14px 0 6px">q (앱 전달 파라미터)</p>
+      <pre class="code" id="a_q">-</pre>
+
+      <p class="desc" style="margin:14px 0 6px">최종 URL</p>
+      <pre class="code" id="a_url">-</pre>
+
+      <p class="desc" style="margin:14px 0 6px">원본 대비 <span id="a_diffBadge" class="badge dim">-</span></p>
+      <pre class="code" id="a_diff">-</pre>
+    </section>
+
+    <!-- 5. 환경 -->
+    <section class="card">
+      <h2><span class="num">05</span> 실행 환경</h2>
+      <table class="kv">
+        <tr><th>브라우저</th><td id="e_browser">-</td></tr>
+        <tr><th>플랫폼</th><td id="e_platform">-</td></tr>
+        <tr><th>User-Agent</th><td id="e_ua">-</td></tr>
+        <tr><th>페이지 주소</th><td id="e_href">-</td></tr>
+      </table>
+      <div class="note" id="e_warn" style="display:none"></div>
+    </section>
+
+    <!-- 6. QR -->
+    <section class="card">
+      <h2><span class="num">06</span> QR 코드</h2>
+      <p class="desc">PC에서 이 페이지를 열었다면, QR을 스캔해 휴대폰 삼성 인터넷에서 같은 페이지를 엽니다.</p>
+      <div id="qr" style="display:flex;justify-content:center;padding:14px;background:#fff;border-radius:10px"></div>
+      <p class="desc" id="qrFallback" style="margin-top:10px;display:none">QR 라이브러리를 불러오지 못했습니다. 주소를 직접 입력하세요.</p>
+      <pre class="code" id="qrUrl" style="margin-top:10px">-</pre>
+    </section>
+
+    <!-- 7. 로그 -->
+    <section class="card">
+      <h2><span class="num">07</span> 이벤트 로그</h2>
+      <p class="desc">클릭 후 화면이 숨겨지면(<code>visibilitychange</code>) 앱 전환으로 판단합니다.</p>
+      <div id="log"></div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn sm" id="btnClearLog">로그 지우기</button>
+        <button class="btn sm" id="btnCopyLog">로그 복사</button>
+      </div>
+    </section>
+
+    <!-- 8. 체크리스트 -->
+    <section class="card">
+      <h2><span class="num">08</span> 결과 체크리스트</h2>
+      <table class="kv">
+        <tr><th>앱 설치 단말</th><td>앱 실행 · OAuth 화면 진입 · q 파라미터 전달 확인</td></tr>
+        <tr><th>앱 미설치 단말</th><td>스토어 이동 · 설치 후 첫 실행 시 딥링크 유지(deferred) 확인</td></tr>
+        <tr><th>콜백</th><td><code>callbackUrl</code>로 결과 전달 확인</td></tr>
+      </table>
+    </section>
+
+    <footer class="page-foot">frontend_home · 웹 테스트</footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // 사용자가 전달한 원본 URL (그대로 보존 — 인코딩 레벨까지 동일)
+    var ORIGINAL_URL = 'https://vendys.onelink.me/szhg?media_source=URL&deep_link_value=%7B%22schema%22%3A%222026-02-25%22%2C%22payload%22%3A%7B%22url%22%3A%22sikdae%3A%2F%2Fscreen%2Fmain%2Foauth%3Fq%3D%257B%2522requestKey%2522%253A%2522REQ_12345%2522%252C%2522callbackUrl%2522%253A%2522https%3A%2F%2Fdev-auth-in.mealc.co.kr%2Fauth%2Fapi%2Fv1%2Fpartner%2Fauth%2Fcallback-test%2522%252C%2522userId%2522%253A%2522tdh34%2521%2522%252C%2522serviceId%2522%253A%2522greating%2522%252C%2522loginId%2522%253A%2522test_signid_01%2522%257D%22%7D%7D';
+
+    var DEFAULTS = {
+      base: 'https://vendys.onelink.me/szhg',
+      mediaSource: 'URL',
+      schema: '2026-02-25',
+      scheme: 'sikdae://screen/main/oauth',
+      requestKey: 'REQ_12345',
+      callbackUrl: 'https://dev-auth-in.mealc.co.kr/auth/api/v1/partner/auth/callback-test',
+      userId: 'tdh34!',
+      serviceId: 'greating',
+      loginId: 'test_signid_01'
+    };
+
+    var FIELDS = ['requestKey', 'callbackUrl', 'userId', 'serviceId', 'loginId', 'scheme', 'schema'];
+    var LOG_KEY = 'onelink-test-log';
+
+    var state = { useOriginal: true, url: ORIGINAL_URL };
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* ---------- 로그 ---------- */
+    function loadLog() {
+      try { return JSON.parse(sessionStorage.getItem(LOG_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveLog(lines) {
+      try { sessionStorage.setItem(LOG_KEY, JSON.stringify(lines.slice(-100))); } catch (e) {}
+    }
+    function renderLog() {
+      var lines = loadLog();
+      var box = $('log');
+      if (!lines.length) {
+        box.innerHTML = '<div class="line"><span class="m" style="color:var(--text-dim)">기록 없음</span></div>';
+        return;
+      }
+      box.innerHTML = lines.map(function (l) {
+        return '<div class="line ' + (l.kind ? 'ev-' + l.kind : '') + '">' +
+          '<span class="t">' + l.t + '</span><span class="m">' + l.m + '</span></div>';
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+    function log(msg, kind) {
+      var d = new Date();
+      var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) +
+              ':' + ('0' + d.getSeconds()).slice(-2) + '.' + ('00' + d.getMilliseconds()).slice(-3);
+      var lines = loadLog();
+      lines.push({ t: t, m: String(msg).replace(/</g, '&lt;'), kind: kind || '' });
+      saveLog(lines);
+      renderLog();
+    }
+
+    /* ---------- URL 생성 / 파싱 ---------- */
+    function currentConfig() {
+      var cfg = { base: DEFAULTS.base, mediaSource: DEFAULTS.mediaSource };
+      FIELDS.forEach(function (k) { cfg[k] = $('f_' + k).value; });
+      return cfg;
+    }
+
+    function buildUrl(cfg) {
+      var q = JSON.stringify({
+        requestKey: cfg.requestKey,
+        callbackUrl: cfg.callbackUrl,
+        userId: cfg.userId,
+        serviceId: cfg.serviceId,
+        loginId: cfg.loginId
+      });
+      var appUrl = cfg.scheme + '?q=' + encodeURIComponent(q);
+      var dlv = JSON.stringify({ schema: cfg.schema, payload: { url: appUrl } });
+      return cfg.base + '?media_source=' + encodeURIComponent(cfg.mediaSource) +
+             '&deep_link_value=' + encodeURIComponent(dlv);
+    }
+
+    // OneLink URL을 계층별로 풀어낸다. 실패 시 해당 항목만 null.
+    function parseUrl(raw) {
+      var out = { base: null, media: null, schema: null, appUrl: null, q: null, qObj: null };
+      try {
+        var u = new URL(raw);
+        out.base = u.origin + u.pathname;
+        out.media = u.searchParams.get('media_source');
+        var dlv = u.searchParams.get('deep_link_value');
+        if (!dlv) return out;
+        var dlvObj = JSON.parse(dlv);
+        out.schema = dlvObj.schema || null;
+        out.appUrl = (dlvObj.payload && dlvObj.payload.url) || null;
+        if (!out.appUrl) return out;
+        var qRaw = out.appUrl.split('?q=')[1];
+        if (!qRaw) return out;
+        out.q = decodeURIComponent(qRaw);
+        out.qObj = JSON.parse(out.q);
+      } catch (e) {
+        out.error = e.message;
+      }
+      return out;
+    }
+
+    /* ---------- 렌더링 ---------- */
+    function renderAnalysis() {
+      var p = parseUrl(state.url);
+      $('a_base').textContent = p.base || '(파싱 실패)';
+      $('a_media').textContent = p.media || '-';
+      $('a_schema').textContent = p.schema || '-';
+      $('a_appurl').textContent = p.appUrl || '-';
+      $('a_q').textContent = p.qObj ? JSON.stringify(p.qObj, null, 2) : (p.q || '(파싱 실패)');
+      $('a_url').textContent = state.url;
+      $('qrUrl').textContent = location.href;
+
+      // 원본 대비 비교: 문자열 동일 / 디코딩 결과만 동일 / 다름
+      var badge = $('a_diffBadge');
+      var diff = $('a_diff');
+      if (state.url === ORIGINAL_URL) {
+        badge.className = 'badge ok';
+        badge.textContent = '원본과 동일';
+        diff.textContent = '사용자가 전달한 URL을 그대로 실행합니다.';
+      } else {
+        var o = parseUrl(ORIGINAL_URL);
+        var same = JSON.stringify(o.qObj) === JSON.stringify(p.qObj) &&
+                   o.schema === p.schema &&
+                   (o.appUrl || '').split('?q=')[0] === (p.appUrl || '').split('?q=')[0];
+        if (same) {
+          badge.className = 'badge warn';
+          badge.textContent = '값 동일 / 인코딩 다름';
+          diff.textContent =
+            '전달되는 값은 원본과 같지만 URL 문자열은 다릅니다.\n' +
+            '원본은 callbackUrl 의 ":" "/" 가 인코딩되지 않은 상태로 q 에 들어 있고,\n' +
+            '재생성 URL 은 encodeURIComponent 로 전부 인코딩합니다.\n' +
+            '앱이 q 를 디코딩해 읽으면 결과는 동일합니다.';
+        } else {
+          badge.className = 'badge err';
+          badge.textContent = '값 변경됨';
+          var lines = [];
+          FIELDS.forEach(function (k) {
+            var ov = (o.qObj && o.qObj[k]) !== undefined ? o.qObj[k] : (k === 'schema' ? o.schema : null);
+            var nv = (p.qObj && p.qObj[k]) !== undefined ? p.qObj[k] : (k === 'schema' ? p.schema : null);
+            if (ov !== nv) lines.push(k + '\n  원본: ' + ov + '\n  변경: ' + nv);
+          });
+          var oScheme = (o.appUrl || '').split('?q=')[0];
+          var nScheme = (p.appUrl || '').split('?q=')[0];
+          if (oScheme !== nScheme) lines.push('scheme\n  원본: ' + oScheme + '\n  변경: ' + nScheme);
+          diff.textContent = lines.length ? lines.join('\n\n') : '(차이 없음)';
+        }
+      }
+
+      $('btnMain').href = state.url;
+      var label = $('targetLabel');
+      label.className = 'badge ' + (state.useOriginal ? 'ok' : 'warn');
+      label.textContent = state.useOriginal ? '원본 URL' : '재생성 URL';
+    }
+
+    function setFieldsFromDefaults() {
+      FIELDS.forEach(function (k) { $('f_' + k).value = DEFAULTS[k]; });
+    }
+
+    function useOriginal() {
+      state.useOriginal = true;
+      state.url = ORIGINAL_URL;
+      renderAnalysis();
+    }
+
+    function useGenerated() {
+      state.useOriginal = false;
+      state.url = buildUrl(currentConfig());
+      renderAnalysis();
+    }
+
+    /* ---------- 실행 ---------- */
+    var pendingAt = 0;
+    var pendingTimer = null;
+
+    function markLaunch(how) {
+      pendingAt = Date.now();
+      log('실행 [' + how + '] ' + (state.useOriginal ? '원본' : '재생성') + ' URL');
+      clearTimeout(pendingTimer);
+      pendingTimer = setTimeout(function () {
+        if (pendingAt && !document.hidden) {
+          log('3초 경과 · 화면 유지됨 — 앱 전환 미감지', 'warn');
+          pendingAt = 0;
+        }
+      }, 3000);
+    }
+
+    function run(how) {
+      var url = state.url;
+      markLaunch(how);
+      if (how === 'newtab') {
+        var w = window.open(url, '_blank');
+        if (!w) log('window.open 차단됨 — 팝업 허용 필요', 'warn');
+      } else if (how === 'location') {
+        window.location.href = url;
+      } else if (how === 'assign') {
+        window.location.assign(url);
+      } else if (how === 'replace') {
+        window.location.replace(url);
+      }
+    }
+
+    function copy(text, label) {
+      function done() { log(label + ' 복사됨', 'ok'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+      } else {
+        fallback();
+      }
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); }
+        catch (e) { log(label + ' 복사 실패', 'warn'); }
+        document.body.removeChild(ta);
+      }
+    }
+
+    /* ---------- 환경 ---------- */
+    function detectEnv() {
+      var ua = navigator.userAgent;
+      var browser = '알 수 없음';
+      var isSamsung = /SamsungBrowser/i.test(ua);
+      if (isSamsung) {
+        var m = ua.match(/SamsungBrowser\/([\d.]+)/);
+        browser = '삼성 인터넷 ' + (m ? m[1] : '');
+      } else if (/FBAN|FBAV|Instagram|KAKAOTALK|NAVER|Line\//i.test(ua)) {
+        browser = '인앱 브라우저';
+      } else if (/EdgA?\//i.test(ua)) { browser = 'Edge'; }
+      else if (/CriOS|Chrome/i.test(ua)) { browser = 'Chrome'; }
+      else if (/Firefox|FxiOS/i.test(ua)) { browser = 'Firefox'; }
+      else if (/Safari/i.test(ua)) { browser = 'Safari'; }
+
+      var platform = /Android/i.test(ua) ? 'Android'
+        : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
+        : /Windows/i.test(ua) ? 'Windows'
+        : /Mac OS X/i.test(ua) ? 'macOS' : '기타';
+
+      $('e_browser').innerHTML = browser +
+        (isSamsung ? ' <span class="badge ok">테스트 대상</span>' : ' <span class="badge dim">대상 아님</span>');
+      $('e_platform').textContent = platform;
+      $('e_ua').textContent = ua;
+      $('e_href').textContent = location.href;
+
+      var warn = $('e_warn');
+      if (!isSamsung) {
+        warn.style.display = 'block';
+        warn.innerHTML = '<strong>삼성 인터넷이 아닙니다.</strong> ' +
+          (platform === 'Windows' || platform === 'macOS'
+            ? '06 QR 코드를 휴대폰으로 스캔해 삼성 인터넷에서 여세요.'
+            : '삼성 인터넷으로 이 주소를 다시 열어 테스트하세요.');
+      }
+      log('페이지 진입 · ' + browser + ' / ' + platform);
+    }
+
+    /* ---------- 앱 전환 감지 ---------- */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        if (pendingAt) {
+          log('화면 숨김 (' + (Date.now() - pendingAt) + 'ms) — 앱/스토어 전환 감지', 'ok');
+          pendingAt = 0;
+          clearTimeout(pendingTimer);
+        } else {
+          log('화면 숨김');
+        }
+      } else {
+        log('화면 복귀');
+      }
+    });
+    window.addEventListener('pagehide', function () { log('pagehide — 페이지 이탈'); });
+
+    /* ---------- 바인딩 ---------- */
+    document.querySelectorAll('[data-run]').forEach(function (el) {
+      el.addEventListener('click', function () { run(el.getAttribute('data-run')); });
+    });
+    $('btnMain').addEventListener('click', function () { markLaunch('a href'); });
+    $('btnCopy').addEventListener('click', function () { copy(state.url, 'URL'); });
+    $('btnCopyDecoded').addEventListener('click', function () {
+      var p = parseUrl(state.url);
+      copy(JSON.stringify({ schema: p.schema, appUrl: p.appUrl, q: p.qObj }, null, 2), '디코딩 결과');
+    });
+    $('btnReset').addEventListener('click', function () {
+      setFieldsFromDefaults();
+      useOriginal();
+      log('원본값으로 초기화');
+    });
+    $('btnApply').addEventListener('click', function () {
+      useGenerated();
+      log('재생성 URL 적용');
+    });
+    FIELDS.forEach(function (k) {
+      $('f_' + k).addEventListener('input', useGenerated);
+    });
+    $('btnClearLog').addEventListener('click', function () {
+      saveLog([]);
+      renderLog();
+    });
+    $('btnCopyLog').addEventListener('click', function () {
+      var text = loadLog().map(function (l) { return l.t + '  ' + l.m; }).join('\n');
+      copy(text, '로그');
+    });
+
+    /* ---------- QR ---------- */
+    function renderQr() {
+      if (typeof QRCode === 'undefined') {
+        $('qrFallback').style.display = 'block';
+        $('qr').style.display = 'none';
+        return;
+      }
+      new QRCode($('qr'), {
+        text: location.href,
+        width: 180,
+        height: 180,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    /* ---------- 시작 ---------- */
+    setFieldsFromDefaults();
+    useOriginal();
+    renderLog();
+    detectEnv();
+    renderQr();
+  })();
+  </script>
+</body>
+</html>
