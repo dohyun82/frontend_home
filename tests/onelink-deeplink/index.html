@@ -39,6 +39,13 @@
         <strong>딥링크는 사용자 탭(제스처)으로 실행해야 합니다.</strong>
         자동 리다이렉트는 브라우저가 차단할 수 있으므로 이 페이지는 자동 이동을 하지 않습니다.
       </div>
+      <div class="note" style="border-left-color:var(--accent);background:rgba(79,140,255,.07)">
+        <strong>af_dp 와 deep_link_value 가 가리키는 화면이 다릅니다.</strong><br />
+        af_dp = <code>sikdae://screen/main</code> (앱 설치 시 OneLink 가 여는 기본 스킴)<br />
+        payload.url = <code>sikdae://screen/main/oauth?q=...</code> (실제 진입 화면과 파라미터)<br />
+        앱이 두 값을 어떻게 조합하는지 — <code>/oauth</code> 까지 진입하는지, <code>/main</code> 에서 멈추는지 —
+        가 이 테스트의 핵심 확인 지점입니다.
+      </div>
     </section>
 
     <!-- 2. 실행 -->
@@ -92,8 +99,8 @@
         <input id="f_serviceId" type="text" autocomplete="off" />
       </div>
       <div class="field">
-        <label for="f_loginId">loginId</label>
-        <input id="f_loginId" type="text" autocomplete="off" />
+        <label for="f_signId">signId</label>
+        <input id="f_signId" type="text" autocomplete="off" />
       </div>
       <div class="field">
         <label for="f_scheme">app scheme (payload.url)</label>
@@ -102,6 +109,10 @@
       <div class="field">
         <label for="f_schema">schema</label>
         <input id="f_schema" type="text" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f_afDp">af_dp (앱 설치 시 열 스킴 · 비우면 파라미터 제외)</label>
+        <input id="f_afDp" type="text" autocomplete="off" />
       </div>
 
       <div class="btn-row">
@@ -118,6 +129,7 @@
       <table class="kv">
         <tr><th>OneLink base</th><td id="a_base">-</td></tr>
         <tr><th>media_source</th><td id="a_media">-</td></tr>
+        <tr><th>af_dp</th><td id="a_afdp">-</td></tr>
         <tr><th>schema</th><td id="a_schema">-</td></tr>
         <tr><th>payload.url</th><td id="a_appurl">-</td></tr>
       </table>
@@ -183,7 +195,7 @@
     'use strict';
 
     // 사용자가 전달한 원본 URL (그대로 보존 — 인코딩 레벨까지 동일)
-    var ORIGINAL_URL = 'https://vendys.onelink.me/szhg?media_source=URL&deep_link_value=%7B%22schema%22%3A%222026-02-25%22%2C%22payload%22%3A%7B%22url%22%3A%22sikdae%3A%2F%2Fscreen%2Fmain%2Foauth%3Fq%3D%257B%2522requestKey%2522%253A%2522REQ_12345%2522%252C%2522callbackUrl%2522%253A%2522https%3A%2F%2Fdev-auth-in.mealc.co.kr%2Fauth%2Fapi%2Fv1%2Fpartner%2Fauth%2Fcallback-test%2522%252C%2522userId%2522%253A%2522tdh34%2521%2522%252C%2522serviceId%2522%253A%2522greating%2522%252C%2522loginId%2522%253A%2522test_signid_01%2522%257D%22%7D%7D';
+    var ORIGINAL_URL = 'https://vendys.onelink.me/szhg?media_source=URL&deep_link_value=%7B%22schema%22%3A%222026-02-25%22%2C%22payload%22%3A%7B%22url%22%3A%22sikdae%3A%2F%2Fscreen%2Fmain%2Foauth%3Fq%3D%257B%2522requestKey%2522%253A%2522REQ_12345%2522%252C%2522callbackUrl%2522%253A%2522https%3A%2F%2Fdev-auth-in.mealc.co.kr%2Fauth%2Fapi%2Fv1%2Fpartner%2Fauth%2Fcallback-test%2522%252C%2522userId%2522%253A%2522tdh34%2521%2522%252C%2522serviceId%2522%253A%2522greating%2522%252C%2522signId%2522%253A%2522test_signid_01%2522%257D%22%7D%7D&af_dp=sikdae%3A%2F%2Fscreen%2Fmain';
 
     var DEFAULTS = {
       base: 'https://vendys.onelink.me/szhg',
@@ -194,10 +206,12 @@
       callbackUrl: 'https://dev-auth-in.mealc.co.kr/auth/api/v1/partner/auth/callback-test',
       userId: 'tdh34!',
       serviceId: 'greating',
-      loginId: 'test_signid_01'
+      signId: 'test_signid_01',
+      afDp: 'sikdae://screen/main'
     };
 
-    var FIELDS = ['requestKey', 'callbackUrl', 'userId', 'serviceId', 'loginId', 'scheme', 'schema'];
+    var FIELDS = ['requestKey', 'callbackUrl', 'userId', 'serviceId', 'signId', 'scheme', 'schema', 'afDp'];
+    var Q_KEYS = ['requestKey', 'callbackUrl', 'userId', 'serviceId', 'signId'];
     var LOG_KEY = 'onelink-test-log';
 
     var state = { useOriginal: true, url: ORIGINAL_URL };
@@ -246,21 +260,24 @@
         callbackUrl: cfg.callbackUrl,
         userId: cfg.userId,
         serviceId: cfg.serviceId,
-        loginId: cfg.loginId
+        signId: cfg.signId
       });
       var appUrl = cfg.scheme + '?q=' + encodeURIComponent(q);
       var dlv = JSON.stringify({ schema: cfg.schema, payload: { url: appUrl } });
-      return cfg.base + '?media_source=' + encodeURIComponent(cfg.mediaSource) +
-             '&deep_link_value=' + encodeURIComponent(dlv);
+      var url = cfg.base + '?media_source=' + encodeURIComponent(cfg.mediaSource) +
+                '&deep_link_value=' + encodeURIComponent(dlv);
+      if (cfg.afDp) url += '&af_dp=' + encodeURIComponent(cfg.afDp);
+      return url;
     }
 
     // OneLink URL을 계층별로 풀어낸다. 실패 시 해당 항목만 null.
     function parseUrl(raw) {
-      var out = { base: null, media: null, schema: null, appUrl: null, q: null, qObj: null };
+      var out = { base: null, media: null, afDp: null, schema: null, appUrl: null, q: null, qObj: null };
       try {
         var u = new URL(raw);
         out.base = u.origin + u.pathname;
         out.media = u.searchParams.get('media_source');
+        out.afDp = u.searchParams.get('af_dp');
         var dlv = u.searchParams.get('deep_link_value');
         if (!dlv) return out;
         var dlvObj = JSON.parse(dlv);
@@ -282,6 +299,7 @@
       var p = parseUrl(state.url);
       $('a_base').textContent = p.base || '(파싱 실패)';
       $('a_media').textContent = p.media || '-';
+      $('a_afdp').textContent = p.afDp || '(없음)';
       $('a_schema').textContent = p.schema || '-';
       $('a_appurl').textContent = p.appUrl || '-';
       $('a_q').textContent = p.qObj ? JSON.stringify(p.qObj, null, 2) : (p.q || '(파싱 실패)');
@@ -299,6 +317,7 @@
         var o = parseUrl(ORIGINAL_URL);
         var same = JSON.stringify(o.qObj) === JSON.stringify(p.qObj) &&
                    o.schema === p.schema &&
+                   o.afDp === p.afDp &&
                    (o.appUrl || '').split('?q=')[0] === (p.appUrl || '').split('?q=')[0];
         if (same) {
           badge.className = 'badge warn';
@@ -312,14 +331,16 @@
           badge.className = 'badge err';
           badge.textContent = '값 변경됨';
           var lines = [];
-          FIELDS.forEach(function (k) {
-            var ov = (o.qObj && o.qObj[k]) !== undefined ? o.qObj[k] : (k === 'schema' ? o.schema : null);
-            var nv = (p.qObj && p.qObj[k]) !== undefined ? p.qObj[k] : (k === 'schema' ? p.schema : null);
-            if (ov !== nv) lines.push(k + '\n  원본: ' + ov + '\n  변경: ' + nv);
+          function cmp(label, ov, nv) {
+            function fmt(v) { return (v === undefined || v === null || v === '') ? '(없음)' : v; }
+            if (ov !== nv) lines.push(label + '\n  원본: ' + fmt(ov) + '\n  변경: ' + fmt(nv));
+          }
+          Q_KEYS.forEach(function (k) {
+            cmp(k, o.qObj ? o.qObj[k] : undefined, p.qObj ? p.qObj[k] : undefined);
           });
-          var oScheme = (o.appUrl || '').split('?q=')[0];
-          var nScheme = (p.appUrl || '').split('?q=')[0];
-          if (oScheme !== nScheme) lines.push('scheme\n  원본: ' + oScheme + '\n  변경: ' + nScheme);
+          cmp('schema', o.schema, p.schema);
+          cmp('scheme', (o.appUrl || '').split('?q=')[0], (p.appUrl || '').split('?q=')[0]);
+          cmp('af_dp', o.afDp, p.afDp);
           diff.textContent = lines.length ? lines.join('\n\n') : '(차이 없음)';
         }
       }

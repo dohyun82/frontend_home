@@ -53,11 +53,16 @@ AppsFlyer OneLink(`vendys.onelink.me/szhg`)를 통해 식권대장 앱의 OAuth 
 - 앱 설치됨 → 식권대장 앱 실행, `sikdae://screen/main/oauth` 진입
 - 앱 미설치 → 스토어로 이동
 
+`af_dp`는 `sikdae://screen/main`, `payload.url`은 `sikdae://screen/main/oauth?q=...` 로 서로 다릅니다.
+앱이 두 값을 어떻게 조합해 최종 화면을 결정하는지가 확인 지점입니다.
+
 **페이지 기능**
 
 - 원본 URL 그대로 실행 / 파라미터를 바꿔 재생성한 URL 실행
+- 편집 가능 파라미터: `requestKey` `callbackUrl` `userId` `serviceId` `signId` `scheme` `schema` `af_dp`
 - 실행 방식 비교: `a href`, `window.open`, `location.href`, `assign`, `replace`
 - URL 계층 디코딩 (OneLink 쿼리 → `deep_link_value` → `payload.url` → `q`)
+- `af_dp`(앱 설치 시 열 기본 스킴)와 `payload.url`(실제 진입 화면)의 차이 표시
 - 원본 URL과의 차이 비교 (값 동일 / 인코딩만 다름 / 값 변경됨)
 - `visibilitychange` 기반 앱 전환 감지 로그 (sessionStorage에 유지)
 - 실행 환경(삼성 인터넷 여부) 표시
